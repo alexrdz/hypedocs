@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HypeDocs</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <link rel="stylesheet" href="https://techmex-io.github.io/tm-css/elemental/dist/styles.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <title>HypeDocs</title>
+  </head>
+  <body data-container="width:lg padding:sm">
+    <header>
+      <h1>HypeDocs</h1>
+      <p>Use this document to track your work performance at the end of the year. That way, when the time comes you will easily be able to put together a strong self-evaluation without needing to dig through a bunch of documents.</p>
+    </header>
+
+    <div data-cluster="gap:md align:center justify:end">
+      <button id="add-row">New Doc</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Tags</th>
+          <th>Value</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Document Title</td>
+          <td>Document Date</td>
+          <td>Document Description</td>
+          <td>Document Tags</td>
+          <td>Document Value</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <footer data-cluster="gap:md align:center justify:between">
+      <p>Created by <a href="https://github.com/techmex-io">Techmex</a></p>
+      <p>Hype YoSelf!</p>
+
+      <div data-cluster="gap:md align:center justify:end">
+        <button id="download-json">Download JSON</button>
+        <button id="download-csv">Download CSV</button>
+      </div>
+    </footer>
+
+  </body>
+  <script type="module" src="app.js"></script>
