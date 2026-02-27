@@ -3,54 +3,556 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HypeDocs</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-    <link rel="stylesheet" href="https://techmex-io.github.io/tm-css/elemental/dist/styles.min.css">
-    <link rel="stylesheet" href="styles.css">
-    <title>HypeDocs</title>
-  </head>
-  <body data-container="width:lg padding:sm">
-    <header>
-      <h1>HypeDocs</h1>
-      <p>Use this document to track your work performance at the end of the year. That way, when the time comes you will easily be able to put together a strong self-evaluation without needing to dig through a bunch of documents.</p>
+    <title>HypeDocs — Professional Performance Tracker</title>
+    <style>
+        /* CSS Variables & Theme Setup */
+        :root {
+            /* Colors */
+            --color-accent: #4f46e5;
+            --color-accent-soft: rgba(79, 70, 229, 0.1);
+            --color-bg: #ffffff;
+            --color-surface: #fcfcfc;
+            --color-text-main: #1a1a1a;
+            --color-text-muted: #64748b;
+            --color-text-ghost: #94a3b8;
+            --color-border: #f1f5f9;
+            --color-slate-900: #0f172a;
+            
+            /* Typography Scale (Fluid) */
+            --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            --size-h1: clamp(2.25rem, 5vw + 1rem, 4rem);
+            --size-h2: clamp(1.5rem, 3vw + 1rem, 2.25rem);
+            --size-body: clamp(1rem, 0.5vw + 0.9rem, 1.125rem);
+            --size-small: clamp(0.75rem, 0.2vw + 0.7rem, 0.875rem);
+            --size-tiny: 0.7rem;
+
+            /* Spacing */
+            --space-xs: 0.5rem;
+            --space-sm: 1rem;
+            --space-md: 1.5rem;
+            --space-lg: 3rem;
+            --space-xl: 5rem;
+            
+            --container-max: 80rem;
+        }
+
+        /* Reset & Base Styles */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-main);
+            font-size: var(--size-body);
+            line-height: 1.6;
+            color: var(--color-text-main);
+            background-color: var(--color-bg);
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: var(--container-max);
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: var(--space-md);
+            padding-right: var(--space-md);
+        }
+
+        /* Typography */
+        h1 {
+            font-size: var(--size-h1);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+            color: var(--color-slate-900);
+            margin-bottom: var(--space-sm);
+        }
+
+        p { color: var(--color-text-muted); text-wrap: balance; }
+
+        .label-caps {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--color-accent);
+            display: block;
+            margin-bottom: var(--space-xs);
+        }
+
+        /* Header */
+        header {
+            padding-top: var(--space-xl);
+            padding-bottom: var(--space-lg);
+        }
+
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        @media (min-width: 1024px) {
+            .header-content {
+                flex-direction: row;
+                align-items: flex-end;
+                justify-content: space-between;
+            }
+        }
+
+        .header-text { max-width: 40rem; }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-xs);
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--color-accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--color-border);
+            color: var(--color-text-muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.75rem 1.5rem;
+        }
+
+        .btn-ghost:hover {
+            background: white;
+            border-color: var(--color-text-ghost);
+            color: var(--color-text-main);
+        }
+
+        /* Table Styles */
+        main { padding-bottom: var(--space-xl); }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .table-wrapper::-webkit-scrollbar { display: none; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 50rem;
+        }
+
+        th {
+            text-align: left;
+            padding-bottom: var(--space-sm);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-text-ghost);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .data-row {
+            border-bottom: 1px solid var(--color-border);
+            transition: background-color 0.2s ease;
+        }
+
+        .data-row:hover { background-color: #f8fafc; }
+
+        td { padding: 1.5rem 0; vertical-align: middle; }
+        td.px { padding-left: var(--space-sm); padding-right: var(--space-sm); }
+        .text-right { text-align: right; }
+
+        [contenteditable="true"]:focus {
+            outline: none;
+            background-color: var(--color-border);
+            border-radius: 4px;
+            box-shadow: 0 0 0 4px var(--color-border);
+        }
+
+        /* Placeholder Logic for ContentEditable */
+        [contenteditable="true"]:empty:before {
+            content: attr(data-placeholder);
+            color: var(--color-text-ghost);
+            pointer-events: none;
+            display: block;
+        }
+
+        /* Components */
+        .tag {
+            background: var(--color-border);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: var(--size-tiny);
+            color: #475569;
+            text-transform: uppercase;
+            margin-right: 4px;
+            display: inline-block;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--color-text-ghost);
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .action-delete:hover { color: #ef4444; }
+
+        /* States */
+        .hidden { display: none !important; }
+
+        .empty-state {
+            padding: var(--space-xl) 0;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .empty-icon {
+            width: 4rem;
+            height: 4rem;
+            background: #f8fafc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--space-sm);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            border-top: 1px solid var(--color-border);
+            padding: var(--space-lg) 0;
+            background: var(--color-surface);
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-md);
+        }
+
+        @media (min-width: 768px) {
+            .footer-content { flex-direction: row; }
+        }
+
+        .footer-links {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: var(--size-small);
+            color: var(--color-text-ghost);
+        }
+
+        .footer-links a {
+            color: var(--color-slate-900);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .dot {
+            width: 4px;
+            height: 4px;
+            background: var(--color-border);
+            border-radius: 50%;
+        }
+
+        .export-group { display: flex; gap: var(--space-xs); }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            left: 2rem;
+            background: var(--color-slate-900);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            z-index: 100;
+            transform: translateY(200%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+
+        @media (min-width: 768px) {
+            .toast { left: auto; width: 20rem; }
+        }
+
+        .toast.show { transform: translateY(0); pointer-events: auto; }
+        .toast-close { background: none; border: none; color: var(--color-text-ghost); cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <header class="container">
+        <div class="header-content">
+            <div class="header-text">
+                <span class="label-caps">Personal Record System</span>
+                <h1>HypeDocs.</h1>
+                <p>A professional-grade performance journal. Track your wins, quantify your impact, and build your self-evaluation narrative in real-time.</p>
+            </div>
+            <div>
+                <button id="add-row" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    New Entry
+                </button>
+            </div>
+        </div>
     </header>
 
-    <div data-cluster="gap:md align:center justify:end">
-      <button id="add-row">New Doc</button>
-    </div>
+    <main class="container">
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 25%" class="px">Title</th>
+                        <th style="width: 120px" class="px">Date</th>
+                        <th style="width: 33%" class="px">Description</th>
+                        <th class="px">Tags</th>
+                        <th style="width: 100px" class="px text-right">Value</th>
+                        <th style="width: 120px" class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="doc-body">
+                    <!-- Data Rows -->
+                </tbody>
+            </table>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Date</th>
-          <th>Description</th>
-          <th>Tags</th>
-          <th>Value</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Document Title</td>
-          <td>Document Date</td>
-          <td>Document Description</td>
-          <td>Document Tags</td>
-          <td>Document Value</td>
-        </tr>
-      </tbody>
-    </table>
+            <div id="empty-state" class="empty-state hidden">
+                <div class="empty-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
+                <h3 style="font-weight: 800;">No entries yet</h3>
+                <p style="font-size: 0.875rem;">Start tracking your professional impact today.</p>
+            </div>
+        </div>
+    </main>
 
-
-    <footer data-cluster="gap:md align:center justify:between">
-      <p>Created by <a href="https://github.com/techmex-io">Techmex</a></p>
-      <p>Hype YoSelf!</p>
-
-      <div data-cluster="gap:md align:center justify:end">
-        <button id="download-json">Download JSON</button>
-        <button id="download-csv">Download CSV</button>
-      </div>
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-links">
+                <p>Built by <a href="https://tech-mex.io" target="_blank">Techmex</a></p>
+                <div class="dot"></div>
+                <p class="italic">Own your narrative.</p>
+            </div>
+            
+            <div class="export-group">
+                <button id="download-json" class="btn btn-ghost">Export JSON</button>
+                <button id="download-csv" class="btn btn-ghost">Export CSV</button>
+            </div>
+        </div>
     </footer>
 
-  </body>
-  <script type="module" src="app.js"></script>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toast-message" style="font-size: 14px;">Data saved successfully</span>
+        <button onclick="hideToast()" class="toast-close">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'hypeDocs_v2';
+        let state = [];
+        let debounceTimer;
+
+        const tableBody = document.getElementById('doc-body');
+        const emptyState = document.getElementById('empty-state');
+        const addRowBtn = document.getElementById('add-row');
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toast-message');
+
+        function init() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            state = savedData ? JSON.parse(savedData) : [];
+            render();
+        }
+
+        function render() {
+            if (state.length === 0) {
+                tableBody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                tableBody.innerHTML = state.map((item, index) => `
+                    <tr class="data-row" data-index="${index}">
+                        <td class="px" style="font-weight: 700; color: var(--color-slate-900);" contenteditable="true" data-placeholder="Achievement Title" data-key="title">${item.title}</td>
+                        <td class="px" style="font-family: var(--font-mono); font-size: 13px; color: var(--color-text-ghost);" data-key="date">${item.date}</td>
+                        <td class="px" style="color: var(--color-text-muted);" contenteditable="true" data-placeholder="What was the impact?" data-key="description">${item.description}</td>
+                        <td class="px" contenteditable="true" data-placeholder="Tags (comma separated)" data-key="tags">
+                            ${formatTags(item.tags)}
+                        </td>
+                        <td class="px text-right" style="font-weight: 800; color: var(--color-slate-900);" contenteditable="true" data-placeholder="High/Med/Low" data-key="value">${item.value}</td>
+                        <td class="text-right">
+                            <div style="display: flex; justify-content: flex-end; gap: 4px;">
+                                <button class="action-btn action-delete" title="Delete Row">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function formatTags(tagsStr) {
+            if (!tagsStr) return '';
+            return tagsStr.split(',').map(t => t.trim() ? `<span class="tag">${t.trim()}</span>` : '').join('');
+        }
+
+        function updateStateFromRow(row) {
+            const index = parseInt(row.dataset.index);
+            const cells = row.querySelectorAll('[data-key]');
+            cells.forEach(cell => {
+                const key = cell.dataset.key;
+                if (key !== 'date') {
+                    state[index][key] = cell.innerText.trim();
+                }
+            });
+            saveState();
+        }
+
+        // Input listener with debounce for silent autosave
+        tableBody.addEventListener('input', (e) => {
+            const row = e.target.closest('tr');
+            if (!row) return;
+            
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                updateStateFromRow(row);
+                showToast("Changes autosaved", true); 
+            }, 2000);
+        });
+
+        // Blur event for final state update and Tag formatting
+        // We do NOT call render() here to preserve tab navigation/focus target
+        tableBody.addEventListener('blur', (e) => {
+            const row = e.target.closest('tr');
+            const cell = e.target.closest('[data-key]');
+            if (!row || !cell) return;
+
+            updateStateFromRow(row);
+
+            // Specifically prettify tags if blurring out of a tags cell
+            if (cell.dataset.key === 'tags') {
+                const val = cell.innerText.trim();
+                cell.innerHTML = formatTags(val);
+            }
+        }, true); 
+
+        tableBody.addEventListener('click', (e) => {
+            const row = e.target.closest('tr');
+            if (!row) return;
+            const index = parseInt(row.dataset.index);
+
+            if (e.target.closest('.action-delete')) {
+                state.splice(index, 1);
+                saveState();
+                render();
+                showToast("Entry removed");
+            }
+        });
+
+        addRowBtn.addEventListener('click', () => {
+            const newItem = {
+                title: '',
+                date: new Date().toLocaleDateString(),
+                description: '',
+                tags: '',
+                value: ''
+            };
+            state.unshift(newItem);
+            render();
+            // Focus first cell
+            const firstRow = tableBody.querySelector('tr');
+            if (firstRow) {
+                const titleCell = firstRow.querySelector('[data-key="title"]');
+                titleCell.focus();
+            }
+        });
+
+        function saveState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        function showToast(msg, isQuiet = false) {
+            // If quiet, we only show it occasionally to avoid annoyance
+            toastMsg.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(hideToast, isQuiet ? 1000 : 3000);
+        }
+
+        function hideToast() {
+            toast.classList.remove('show');
+        }
+
+        document.getElementById('download-json').addEventListener('click', () => {
+            const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+            triggerDownload(blob, 'hypedocs-export.json');
+        });
+
+        document.getElementById('download-csv').addEventListener('click', () => {
+            const headers = ['Title', 'Date', 'Description', 'Tags', 'Value'];
+            const rows = state.map(r => [
+                `"${r.title}"`, `"${r.date}"`, `"${r.description}"`, `"${r.tags}"`, `"${r.value}"`
+            ].join(','));
+            const csv = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            triggerDownload(blob, 'hypedocs-export.csv');
+        });
+
+        function triggerDownload(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename; a.click();
+            URL.revokeObjectURL(url);
+            showToast("Export complete");
+        }
+
+        init();
+    </script>
+</body>
+</html>
